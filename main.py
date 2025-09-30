@@ -56,6 +56,8 @@ def print_help():
     print("   python3 main.py intraday status         # 查看系统状态")
     print("   python3 main.py intraday test           # 性能测试")
     print("   python3 main.py intraday config         # 配置管理")
+    print("   python3 main.py intraday strategy       # 策略引擎管理")
+    print("   python3 main.py intraday signals        # 信号监控模式")
     print("   python3 main.py intraday start          # 启动自动交易")
     
     print("\\n💡 使用示例:")
@@ -277,6 +279,121 @@ def run_intraday_trading(action, **kwargs):
             print("  - Alpha Vantage (备用)")
             print("  - Finnhub WebSocket (高频)")
     
+    elif action == 'strategy':
+        print("🧠 策略引擎管理:")
+        print("=" * 40)
+        try:
+            from src.strategies import create_integrated_strategy_manager, validate_strategy_integration
+            
+            # 验证策略集成
+            if validate_strategy_integration():
+                print("✅ 策略集成验证通过")
+                
+                # 创建集成策略管理器
+                manager = create_integrated_strategy_manager()
+                status = manager.get_manager_status()
+                
+                print(f"\\n📊 策略引擎状态:")
+                print(f"  总策略数: {status['total_strategies']}")
+                print(f"  活跃策略数: {status['active_strategies']}")
+                print(f"  信号融合: {'启用' if status.get('fusion_enabled', True) else '禁用'}")
+                
+                print("\\n🎯 策略权重配置:")
+                for name, strategy_info in status['strategies'].items():
+                    weight = strategy_info['weight']
+                    perf = strategy_info['performance']
+                    print(f"  {name}: {weight*100:.0f}% (信号数: {perf['total_signals']})")
+                
+                print("\\n💡 策略特点:")
+                print("  📈 动量突破 (40%): 趋势跟踪，突破确认")
+                print("  🔄 均值回归 (35%): 支撑阻力，反转信号")
+                print("  📊 成交量确认 (25%): 资金流向，异常识别")
+                
+            else:
+                print("❌ 策略集成验证失败")
+                print("🔧 请检查策略模块的完整性")
+                
+        except ImportError as e:
+            print(f"❌ 策略引擎模块未完全安装: {e}")
+            print("🚧 开发状态: P0-2阶段 - 策略引擎开发中")
+            print("✅ 已完成: 策略框架、动量突破、均值回归、成交量确认")
+            print("🚧 进行中: 策略集成测试、信号融合优化")
+    
+    elif action == 'signals':
+        print("📡 启动信号监控模式...")
+        try:
+            from src.strategies import create_integrated_strategy_manager
+            from src.data.bt_realtime_feed import BacktraderRealTimeFeed
+            
+            # 创建策略管理器
+            manager = create_integrated_strategy_manager()
+            
+            # 创建数据源
+            feed = BacktraderRealTimeFeed()
+            feed.p.symbol = kwargs.get('symbol', 'AAPL')
+            feed.p.update_interval_ms = 200  # 稍微降低频率用于策略计算
+            
+            print(f"🎯 监控股票: {feed.p.symbol}")
+            print("🧠 三策略融合信号监控")
+            print("💡 按 Ctrl+C 停止监控")
+            
+            signal_count = 0
+            
+            def signal_handler(data):
+                nonlocal signal_count
+                
+                # 更新策略数据（这里简化处理）
+                # 实际使用时需要将市场数据传入策略
+                
+                # 处理策略信号
+                signal = manager.process_tick()
+                
+                if signal:
+                    signal_count += 1
+                    print(f"\\n[{datetime.now().strftime('%H:%M:%S')}] 🚨 交易信号 #{signal_count}")
+                    print(f"  类型: {signal.signal_type.value}")
+                    print(f"  强度: {signal.strength.value}")
+                    print(f"  置信度: {signal.confidence:.2%}")
+                    print(f"  策略: {signal.strategy_name}")
+                    print(f"  价格: ${signal.price:.2f}")
+                    if signal.volume:
+                        print(f"  成交量: {signal.volume:,}")
+                    
+                    # 显示融合信息
+                    if signal.strategy_name == "FusedStrategy":
+                        indicators = signal.indicators
+                        contrib_strategies = indicators.get('contributing_strategies', [])
+                        confidences = indicators.get('individual_confidences', {})
+                        print(f"  融合策略: {', '.join(contrib_strategies)}")
+                        for strat, conf in confidences.items():
+                            print(f"    {strat}: {conf:.2%}")
+                else:
+                    # 显示实时数据
+                    if hasattr(data, 'price'):
+                        print(f"[{datetime.now().strftime('%H:%M:%S')}] "
+                              f"{data.symbol}: ${data.price:.2f} "
+                              f"(等待信号...)", end='\\r')
+            
+            feed.data_callback = signal_handler
+            feed.start()
+            
+            import time
+            try:
+                while True:
+                    time.sleep(0.5)
+            except KeyboardInterrupt:
+                print(f"\\n\\n🛑 停止信号监控")
+                print(f"📊 本次监控统计: 总计 {signal_count} 个交易信号")
+            finally:
+                feed.stop()
+                
+        except ImportError as e:
+            print(f"❌ 信号监控模块未安装: {e}")
+            print("💡 演示模式 - 模拟信号:")
+            print("  [14:35:22] 🚨 BUY信号 - 动量突破策略 - 置信度: 78%")
+            print("  [14:42:15] 🚨 SELL信号 - 融合策略 - 置信度: 82%")
+            print("  [14:58:03] 🚨 STRONG_BUY信号 - 三策略一致 - 置信度: 91%")
+    
     elif action == 'start':
         print("🚀 启动日内自动交易系统...")
         print("⚠️  警告: 这将开始实际交易操作!")
@@ -307,7 +424,7 @@ def run_intraday_trading(action, **kwargs):
     
     else:
         print(f"❌ 未知的日内交易操作: {action}")
-        print("💡 可用操作: monitor, status, test, config, start")
+        print("💡 可用操作: monitor, status, test, config, strategy, signals, start")
 
 def main():
     """主函数"""
@@ -343,7 +460,7 @@ def main():
     # 日内交易系统命令
     intraday_parser = subparsers.add_parser('intraday', help='日内交易系统')
     intraday_parser.add_argument('action',
-                                choices=['monitor', 'status', 'test', 'config', 'start'],
+                                choices=['monitor', 'status', 'test', 'config', 'strategy', 'signals', 'start'],
                                 help='操作类型')
     intraday_parser.add_argument('--symbol', '-s', default='AAPL',
                                 help='监控股票代码 (默认AAPL)')
