@@ -1,11 +1,9 @@
-# Main Trading System Module
-from .strategies import *
-from .data import *
-from .brokers import *
-from .analyzers import *
-from .indicators import *
-from .risk import *
-from .utils import *
+"""
+智能股票分析系统核心模块
+Core modules for intelligent stock analysis system
+"""
 
-__version__ = "1.0.0"
-__author__ = "Backtrader Trading System"
+__version__ = "3.0.0"
+
+# 核心模块可在需要时按需导入
+# Core modules can be imported as needed

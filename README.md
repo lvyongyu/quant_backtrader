@@ -22,6 +22,13 @@
 - **投资建议**: 基于综合评分的买卖建议
 - **风险评估**: 详细的风险提示和注意事项
 
+### 💼 4. 智能投资组合管理 ⭐️
+- **自动交易**: 基于四维分析结果智能买卖
+- **风险控制**: 仓位控制、止损机制
+- **模拟交易**: 支持模拟和实际交易模式
+- **持仓跟踪**: 实时盈亏分析和组合优化
+- **交易记录**: 完整的交易历史和手续费统计
+
 ## 🚀 快速开始
 
 ### 安装依赖
@@ -34,49 +41,111 @@ pip install -r requirements.txt
 #### 🔍 选股筛选
 ```bash
 # 筛选SP500前5只股票
-python main.py screen sp500 5
+python3 main.py screen sp500 5
 
 # 筛选NASDAQ100前10只股票  
-python main.py screen nasdaq100 10
+python3 main.py screen nasdaq100 10
 
 # 筛选中概股前3只
-python main.py screen chinese 3
+python3 main.py screen chinese 3
 ```
 
 #### 📋 自选股管理
 ```bash
 # 查看自选股池
-python main.py watchlist show
+python3 main.py watchlist show
 
 # 分析自选股池所有股票
-python main.py watchlist analyze
+python3 main.py watchlist analyze
 
 # 添加股票到自选股池
-python main.py watchlist add AAPL
+python3 main.py watchlist add AAPL
 
 # 从自选股池移除股票
-python main.py watchlist remove AAPL
+python3 main.py watchlist remove AAPL
 
 # 清空自选股池
-python main.py watchlist clear
+python3 main.py watchlist clear
 ```
 
 #### 📈 单只股票分析
 ```bash
 # 分析苹果股票
-python main.py analyze AAPL
+python3 main.py analyze AAPL
 
 # 分析特斯拉股票
-python main.py analyze TSLA
+python3 main.py analyze TSLA
 
 # 分析HWM股票
-python main.py analyze HWM
+python3 main.py analyze HWM
+```
+
+#### 💼 智能投资组合管理
+```bash
+# 查看投资组合状态
+python3 main.py portfolio status
+
+# 模拟自动交易
+python3 main.py portfolio simulate
+
+# 执行实际自动交易
+python3 main.py portfolio trade
+
+# 模拟执行交易（安全模式）
+python3 main.py portfolio trade --dry-run
+
+# 查看交易历史
+python3 main.py portfolio history
+
+# 重置投资组合
+python3 main.py portfolio reset
 ```
 
 ### 查看帮助
 ```bash
-python main.py --help
-python main.py
+python3 main.py --help
+python3 main.py
+```
+
+## 🤖 自动交易系统详解
+
+### 交易策略
+系统基于四维分析结果自动生成买卖信号：
+
+#### 买入条件
+- 股票四维综合得分 ≥ 75分
+- 投资组合持仓数量 < 10只
+- 单只股票仓位 ≤ 总资产的10%
+- 账户有足够现金
+
+#### 卖出条件
+- 股票四维综合得分 < 65分
+- 触发止损机制
+- 投资组合重新平衡需要
+
+#### 风险控制
+- **仓位控制**: 单只股票最大10%仓位
+- **分散投资**: 最多持有10只股票
+- **动态调整**: 基于得分变化自动调仓
+- **交易成本**: 0.1%手续费模拟真实交易
+
+### 投资组合示例
+```
+💼 智能投资组合状态
+============================================================
+
+💰 投资组合摘要:
+   总价值: $105,250.00
+   现金: $15,250.00 (14.5%)
+   投资价值: $90,000.00 (85.5%)
+   总盈亏: $5,250.00 (+5.25%)
+   持仓数量: 8
+
+📊 当前持仓:
+股票     股数     成本     现价     市值         盈亏         盈亏%    入场分
+HWM      64      154.56   165.20   $10,572.80   🟢$681.28   +6.9%   100.0
+DASH     85      116.33   125.40   $10,659.00   🟢$771.95   +7.8%   99.1
+PLTR     200     47.80    52.15    $10,430.00   🟢$870.00   +9.1%   94.1
 ```
 
 ## 📊 分析结果示例
@@ -111,17 +180,20 @@ python main.py
 ```
 backtrader_trading/
 ├── main.py                 # 统一入口脚本
+├── portfolio_manager.py    # 智能投资组合管理
+├── stock_analyzer.py       # 通用单股分析工具
 ├── examples/
 │   └── stock_screener.py   # 选股筛选器
 ├── watchlist_tool.py       # 自选股管理工具
-├── analyze_hwm_only.py     # 单股分析模板
 ├── src/
 │   └── analyzers/          # 分析器模块
 │       ├── fundamental_analyzer.py      # 基本面分析
 │       ├── market_environment.py       # 市场环境分析
 │       └── sentiment_fund_analyzer.py  # 情绪资金面分析
 └── data/
-    └── watchlist.json      # 自选股数据存储
+    ├── watchlist.json      # 自选股数据存储
+    ├── portfolio.json      # 投资组合持仓数据
+    └── transactions.json   # 交易记录数据
 ```
 
 ## 🎯 分析维度详解
@@ -153,20 +225,32 @@ backtrader_trading/
 ### 1. 日常选股
 ```bash
 # 每日筛选优质股票
-python main.py screen sp500 10
+python3 main.py screen sp500 10
 ```
 
 ### 2. 投资组合管理
 ```bash
 # 管理个人股票池
-python main.py watchlist analyze
-python main.py watchlist add NVDA
+python3 main.py watchlist analyze
+python3 main.py watchlist add NVDA
 ```
 
 ### 3. 深度研究
 ```bash
 # 详细分析目标股票
-python main.py analyze AAPL
+python3 main.py analyze AAPL
+```
+
+### 4. 自动化交易 ⭐️
+```bash
+# 模拟自动交易
+python3 main.py portfolio simulate
+
+# 实际自动交易
+python3 main.py portfolio trade
+
+# 监控投资组合
+python3 main.py portfolio status
 ```
 
 ## ⚡ 性能特点
@@ -175,6 +259,9 @@ python main.py analyze AAPL
 - **智能限流**: API调用自动重试和限频
 - **成功率高**: 95%+ 分析成功率
 - **内存优化**: 支持大规模股票分析
+- **自动交易**: 基于量化信号的智能买卖
+- **风险可控**: 多层风险管理机制
+- **实时监控**: 投资组合实时状态跟踪
 
 ## 🎨 自定义配置
 
