@@ -1,0 +1,36 @@
+{
+  "broker": {
+    "name": "interactive_brokers",
+    "api_key": "your_api_key_here",
+    "secret_key": "your_secret_key_here",
+    "base_url": "https://api.broker.com",
+    "paper_trading": true
+  },
+  "risk_management": {
+    "max_position_size": 0.1,
+    "max_daily_loss": 0.02,
+    "max_total_exposure": 0.8,
+    "min_cash_reserve": 0.1,
+    "stop_loss_percent": 0.05,
+    "take_profit_percent": 0.15
+  },
+  "trading": {
+    "symbols": [
+      "AAPL",
+      "GOOGL",
+      "MSFT",
+      "TSLA"
+    ],
+    "strategy_params": {
+      "sma_short": 10,
+      "sma_long": 20,
+      "rsi_period": 14,
+      "position_size_percent": 0.1
+    }
+  },
+  "logging": {
+    "level": "INFO",
+    "file": "live_trading.log",
+    "format": "%(asctime)s - %(name)s - %(levelname)s - %(message)s"
+  }
+}
