@@ -1,0 +1,40 @@
+{
+  "active_source": "primary_websocket",
+  "sources": {
+    "primary_websocket": {
+      "name": "primary_websocket",
+      "type": "websocket",
+      "url": "wss://your-primary-provider.com/v1/stream",
+      "api_key": "YOUR_PRIMARY_API_KEY",
+      "update_interval_ms": 50,
+      "timeout_seconds": 10,
+      "max_retries": 5,
+      "priority": 1,
+      "enabled": true
+    },
+    "secondary_websocket": {
+      "name": "secondary_websocket",
+      "type": "websocket",
+      "url": "wss://your-secondary-provider.com/ws",
+      "api_key": "YOUR_SECONDARY_API_KEY",
+      "update_interval_ms": 100,
+      "timeout_seconds": 10,
+      "max_retries": 5,
+      "priority": 2,
+      "enabled": true
+    },
+    "fallback_rest": {
+      "name": "fallback_rest",
+      "type": "rest",
+      "url": "https://api.fallback-provider.com/v1",
+      "api_key": "YOUR_FALLBACK_API_KEY",
+      "update_interval_ms": 1000,
+      "timeout_seconds": 5,
+      "max_retries": 3,
+      "priority": 3,
+      "enabled": true
+    }
+  },
+  "created_at": "2025-09-30T21:06:26.497586",
+  "environment": "production"
+}

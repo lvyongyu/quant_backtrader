@@ -1,0 +1,50 @@
+{
+  "active_source": "yahoo_finance",
+  "sources": {
+    "yahoo_finance": {
+      "name": "yahoo_finance",
+      "type": "rest",
+      "url": "https://query1.finance.yahoo.com",
+      "api_key": null,
+      "update_interval_ms": 1000,
+      "timeout_seconds": 5,
+      "max_retries": 3,
+      "priority": 1,
+      "enabled": true
+    },
+    "alpha_vantage": {
+      "name": "alpha_vantage",
+      "type": "rest",
+      "url": "https://www.alphavantage.co/query",
+      "api_key": "YOUR_API_KEY",
+      "update_interval_ms": 1000,
+      "timeout_seconds": 5,
+      "max_retries": 3,
+      "priority": 2,
+      "enabled": false
+    },
+    "finnhub": {
+      "name": "finnhub",
+      "type": "websocket",
+      "url": "wss://ws.finnhub.io",
+      "api_key": "YOUR_API_KEY",
+      "update_interval_ms": 100,
+      "timeout_seconds": 5,
+      "max_retries": 3,
+      "priority": 1,
+      "enabled": false
+    },
+    "iex_cloud": {
+      "name": "iex_cloud",
+      "type": "websocket",
+      "url": "wss://ws-api.iextrading.com/1.0/deep",
+      "api_key": "YOUR_API_KEY",
+      "update_interval_ms": 100,
+      "timeout_seconds": 5,
+      "max_retries": 3,
+      "priority": 1,
+      "enabled": false
+    }
+  },
+  "last_updated": "2025-09-30T21:06:21.915674"
+}
