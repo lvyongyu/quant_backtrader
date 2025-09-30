@@ -144,6 +144,10 @@ class BaseStrategy:
         self.signal_count = 0
         self.successful_signals = 0
         
+        # 风险控制器（可选）
+        self.risk_controller = None
+        self._initialize_risk_controller()
+        
         # 参数设置
         self.params = type('Params', (), {
             'strategy_name': 'BaseStrategy',
@@ -155,7 +159,26 @@ class BaseStrategy:
         # 初始化技术指标
         self._init_indicators()
         
-        self.logger.info(f"策略初始化完成: {self.params.strategy_name}")
+                
+        self.logger.info(f"策略 {self.params.strategy_name} 初始化完成")
+    
+    def _initialize_risk_controller(self):
+        """初始化风险控制器"""
+        try:
+            from ..risk import RiskController, RiskLimits
+            
+            # 创建风险控制器
+            risk_limits = RiskLimits()
+            self.risk_controller = RiskController(risk_limits)
+            
+            self.logger.info("风险控制器已集成到策略中")
+            
+        except ImportError:
+            self.logger.debug("风险控制模块未安装，策略将不进行风险验证")
+            self.risk_controller = None
+        except Exception as e:
+            self.logger.error(f"风险控制器初始化失败: {e}")
+            self.risk_controller = None
     
     def _init_indicators(self):
         """初始化技术指标 - 子类需要实现"""
@@ -224,8 +247,12 @@ class BaseStrategy:
     
     def _execute_signal(self, signal: TradingSignal):
         """执行信号对应的交易操作"""
-        # 这里将来集成订单执行模块
+        # 风险验证
+        if not self._validate_risk(signal):
+            self.logger.warning(f"信号被风险控制拒绝: {signal}")
+            return
         
+        # 这里将来集成订单执行模块
         if signal.signal_type in [SignalType.BUY, SignalType.STRONG_BUY]:
             self.logger.info(f"执行买入信号: {signal.price}")
             # TODO: 实际买入逻辑
@@ -236,6 +263,44 @@ class BaseStrategy:
         
         else:  # HOLD
             self.logger.debug(f"持有信号: {signal.price}")
+    
+    def _validate_risk(self, signal: TradingSignal) -> bool:
+        """验证信号的风险合规性"""
+        try:
+            from ..risk import RiskController
+            
+            # 如果有风险控制器，则进行验证
+            if hasattr(self, 'risk_controller') and self.risk_controller:
+                # 构造交易请求
+                trade_request = {
+                    'symbol': getattr(signal, 'symbol', 'UNKNOWN'),
+                    'action': signal.signal_type.value,
+                    'price': signal.price,
+                    'quantity': getattr(signal, 'quantity', 100),  # 默认100股
+                    'estimated_loss': 0.005,  # 预估0.5%风险
+                    'confidence': signal.confidence
+                }
+                
+                # 模拟账户价值（实际使用时从账户管理模块获取）
+                account_value = 100000.0
+                
+                # 验证交易
+                is_valid, reason = self.risk_controller.validate_trade_dict(trade_request, account_value)
+                if not is_valid:
+                    self.logger.warning(f"交易被风险控制拒绝: {reason}")
+                
+                return is_valid
+            
+            # 没有风险控制器，允许执行
+            return True
+            
+        except ImportError:
+            # 风险模块未安装，允许执行
+            return True
+        except Exception as e:
+            self.logger.error(f"风险验证错误: {e}")
+            # 出错时拒绝执行，确保安全
+            return False
     
     def get_strategy_performance(self) -> Dict[str, Any]:
         """获取策略性能统计"""
