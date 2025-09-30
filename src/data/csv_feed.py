@@ -6,11 +6,16 @@ from CSV files with flexible column mapping.
 """
 
 import backtrader as bt
-import pandas as pd
 from datetime import datetime
-from typing import Optional, Dict, Any
+from typing import Optional
 import logging
 import os
+
+try:
+    import pandas as pd
+except ImportError as e:
+    print(f"警告: 缺少依赖包 {e}, CSV数据源功能可能受限")
+    pd = None
 
 
 class CSVDataFeed(bt.feeds.PandasData):
@@ -142,27 +147,50 @@ class CSVDataFeed(bt.feeds.PandasData):
                 header=header
             )
             
-            logging.info(f"Created CSV data feed from {file_path}: {len(df)} bars")
+            logging.info("Created CSV data feed from %s: %d bars", file_path, len(df))
             return data_feed
             
-        except Exception as e:
-            logging.error(f"Failed to create CSV data feed from {file_path}: {str(e)}")
+        except (FileNotFoundError, ValueError, KeyError) as e:
+            logging.error("Failed to create CSV data feed from %s: %s", file_path, str(e))
             raise
     
     @staticmethod
-    def create_sample_csv(file_path: str, symbol: str = 'SAMPLE', days: int = 100) -> str:
+    def create_sample_csv(file_path: str, days: int = 100) -> str:
         """
         Create a sample CSV file with synthetic OHLCV data.
         
         Args:
             file_path: Path where to save the CSV file
-            symbol: Symbol name for the data
             days: Number of days of data to generate
             
         Returns:
             Path to created CSV file
         """
-        import numpy as np
+        try:
+            import numpy as np
+        except ImportError:
+            print("警告: 缺少numpy依赖，使用简化数据生成")
+            # 简化的数据生成逻辑
+            import random
+            data = []
+            base_price = 100.0
+            for day in range(days):
+                date = datetime.now() - pd.Timedelta(days=days-day)
+                close = base_price + random.uniform(-5, 5)
+                data.append([
+                    date.strftime('%Y-%m-%d'),
+                    close,
+                    close + random.uniform(0, 2),
+                    close - random.uniform(0, 2),
+                    close,
+                    random.randint(100000, 1000000)
+                ])
+                base_price = close
+                
+            df = pd.DataFrame(data, columns=['Date', 'Open', 'High', 'Low', 'Close', 'Volume'])
+            df.to_csv(file_path, index=False)
+            logging.info("Created sample CSV file: %s with %d rows", file_path, len(df))
+            return file_path
         
         # Generate sample data
         dates = pd.date_range(
@@ -182,7 +210,7 @@ class CSVDataFeed(bt.feeds.PandasData):
         
         # Generate OHLCV data
         data = []
-        for i, (date, close) in enumerate(zip(dates, prices)):
+        for date, close in zip(dates, prices):
             # Generate realistic OHLC from close price
             volatility = abs(np.random.normal(0, 0.01))  # Intraday volatility
             high = close * (1 + volatility)
@@ -203,5 +231,5 @@ class CSVDataFeed(bt.feeds.PandasData):
         df = pd.DataFrame(data)
         df.to_csv(file_path, index=False)
         
-        logging.info(f"Created sample CSV file: {file_path} with {len(df)} rows")
+        logging.info("Created sample CSV file: %s with %d rows", file_path, len(df))
         return file_path

@@ -6,11 +6,17 @@ real-time data from Yahoo Finance using the yfinance library.
 """
 
 import backtrader as bt
-import yfinance as yf
-import pandas as pd
-from datetime import datetime, timedelta
+from datetime import datetime
 from typing import Optional, Union
 import logging
+
+try:
+    import yfinance as yf
+    import pandas as pd
+except ImportError as e:
+    print(f"警告: 缺少依赖包 {e}, Yahoo数据源功能可能受限")
+    yf = None
+    pd = None
 
 
 class YahooDataFeed(bt.feeds.PandasData):
@@ -106,11 +112,11 @@ class YahooDataFeed(bt.feeds.PandasData):
                 actions=actions
             )
             
-            logging.info(f"Created Yahoo data feed for {symbol}: {len(df)} bars")
+            logging.info("Created Yahoo data feed for %s: %d bars", symbol, len(df))
             return data_feed
             
-        except Exception as e:
-            logging.error(f"Failed to create Yahoo data feed for {symbol}: {str(e)}")
+        except (ValueError, ConnectionError, KeyError) as e:
+            logging.error("Failed to create Yahoo data feed for %s: %s", symbol, str(e))
             raise
     
     @staticmethod
@@ -162,6 +168,6 @@ class YahooDataFeed(bt.feeds.PandasData):
                 'price': info.get('currentPrice', 'N/A'),
                 'currency': info.get('currency', 'USD')
             }
-        except Exception as e:
-            logging.error(f"Failed to get info for {symbol}: {str(e)}")
+        except (ValueError, ConnectionError, KeyError) as e:
+            logging.error("Failed to get info for %s: %s", symbol, str(e))
             return {'symbol': symbol, 'error': str(e)}

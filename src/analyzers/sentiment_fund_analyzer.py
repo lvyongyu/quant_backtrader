@@ -6,13 +6,17 @@ Sentiment & Fund Flow Analyzer
 分析市场情绪和资金流向，为股票评分提供第四维度
 """
 
-import yfinance as yf
-import numpy as np
-import pandas as pd
-from datetime import datetime, timedelta
-from typing import Dict, Optional, Tuple
-import warnings
-warnings.filterwarnings('ignore')
+try:
+    import yfinance as yf
+    import pandas as pd
+    from datetime import datetime
+    from typing import Dict
+    import warnings
+    warnings.filterwarnings('ignore')
+except ImportError as e:
+    print(f"警告: 缺少依赖包 {e}, 情绪分析功能可能受限")
+    yf = None
+    pd = None
 
 
 class SentimentFundAnalyzer:
@@ -52,7 +56,7 @@ class SentimentFundAnalyzer:
             order_strength = self._analyze_order_strength(hist)
             
             # 4. 相对表现分析
-            relative_performance = self._analyze_relative_performance(symbol, hist)
+            relative_performance = self._analyze_relative_performance(hist)
             
             # 5. 成交量情绪分析
             volume_sentiment = self._analyze_volume_sentiment(hist)
@@ -73,7 +77,7 @@ class SentimentFundAnalyzer:
                 'analysis_date': datetime.now().isoformat()
             }
             
-        except Exception as e:
+        except (AttributeError, KeyError, ValueError, ConnectionError) as e:
             print(f"⚠️ 情绪/资金面分析失败 {symbol}: {e}")
             return self._get_default_sentiment_fund()
     
@@ -109,12 +113,12 @@ class SentimentFundAnalyzer:
                     'score': score
                 }
             
-        except Exception as e:
+        except (AttributeError, KeyError, ValueError, ConnectionError) as e:
             print(f"⚠️ VIX分析失败: {e}")
         
         return {'level': 20.0, 'sentiment': '中性', 'score': 50}
     
-    def _analyze_fund_flow(self, hist: pd.DataFrame) -> Dict:
+    def _analyze_fund_flow(self, hist) -> Dict:
         """分析资金流向"""
         try:
             # 使用价格和成交量计算资金流向
@@ -156,11 +160,11 @@ class SentimentFundAnalyzer:
                 'negative_flow': negative_flow
             }
             
-        except Exception as e:
+        except (AttributeError, KeyError, ValueError, ZeroDivisionError) as e:
             print(f"⚠️ 资金流向分析失败: {e}")
             return {'mfi': 50, 'flow_strength': '平衡', 'score': 50}
     
-    def _analyze_order_strength(self, hist: pd.DataFrame) -> Dict:
+    def _analyze_order_strength(self, hist) -> Dict:
         """分析买卖盘强度"""
         try:
             # 使用最近20天数据
@@ -203,11 +207,11 @@ class SentimentFundAnalyzer:
                 'score': score
             }
             
-        except Exception as e:
+        except (AttributeError, KeyError, ValueError, ZeroDivisionError) as e:
             print(f"⚠️ 买卖盘强度分析失败: {e}")
             return {'strength': '买卖平衡', 'score': 50}
     
-    def _analyze_relative_performance(self, symbol: str, hist: pd.DataFrame) -> Dict:
+    def _analyze_relative_performance(self, hist) -> Dict:
         """分析相对市场表现"""
         try:
             # 获取最近20天的收益率
@@ -247,11 +251,11 @@ class SentimentFundAnalyzer:
                 'score': score
             }
             
-        except Exception as e:
+        except (AttributeError, KeyError, ValueError, ConnectionError) as e:
             print(f"⚠️ 相对表现分析失败: {e}")
             return {'performance': '跟随大盘', 'score': 50}
     
-    def _analyze_volume_sentiment(self, hist: pd.DataFrame) -> Dict:
+    def _analyze_volume_sentiment(self, hist) -> Dict:
         """分析成交量情绪"""
         try:
             # 计算成交量移动平均
@@ -294,7 +298,7 @@ class SentimentFundAnalyzer:
                 'score': score
             }
             
-        except Exception as e:
+        except (AttributeError, KeyError, ValueError, ZeroDivisionError) as e:
             print(f"⚠️ 成交量情绪分析失败: {e}")
             return {'sentiment': '成交正常', 'score': 50}
     

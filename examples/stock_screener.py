@@ -6,9 +6,13 @@ Intelligent Stock Screener v2.0 - Optimized for API Rate Limits
 解决API频率限制问题的优化版本
 """
 
-import yfinance as yf
-import pandas as pd
-import numpy as np
+try:
+    import yfinance as yf
+    import pandas as pd
+    import numpy as np
+except ImportError as e:
+    print(f"警告: 缺少依赖包 {e}")
+    
 from concurrent.futures import ThreadPoolExecutor, as_completed
 import time
 from datetime import datetime, timedelta
@@ -22,7 +26,11 @@ warnings.filterwarnings('ignore')
 
 # 添加src目录到Python路径
 sys.path.append(os.path.join(os.path.dirname(__file__), '..', 'src'))
-from data.stock_universe import StockUniverse
+try:
+    from data.stock_universe import StockUniverse
+except ImportError:
+    print("警告: 无法导入 StockUniverse，部分功能可能受限")
+    StockUniverse = None
 
 # 导入分析模块
 try:
@@ -151,7 +159,7 @@ class StockScreener:
         df = stock.history(period="6mo", interval="1d")
         
         if df.empty or len(df) < 50:
-            raise Exception(f"数据不足: 只有{len(df)}条记录")
+            raise ValueError(f"数据不足: 只有{len(df)}条记录")
         
         return df
 
@@ -249,7 +257,7 @@ class StockScreener:
             
             if self.enable_market_env:
                 try:
-                    print(f"🌍 分析市场环境...")
+                    print("🌍 分析市场环境...")
                     fit_result = self.market_env_analyzer.get_stock_environment_fit(symbol)
                     if fit_result:
                         market_fit_score = fit_result.get('fit_score', 75)
@@ -268,7 +276,7 @@ class StockScreener:
             
             if self.enable_sentiment_fund:
                 try:
-                    print(f"🎭 分析情绪/资金面...")
+                    print("🎭 分析情绪/资金面...")
                     sentiment_result = self.sentiment_fund_analyzer.analyze_sentiment_fund(symbol)
                     if sentiment_result:
                         sentiment_fund_score = sentiment_result.get('sentiment_fund_score', 50)
@@ -303,7 +311,7 @@ class StockScreener:
                 score_breakdown['sentiment_fund_score'] = round(sentiment_fund_score, 1)
             
             # 额外加分项
-            bonus_points = self.calculate_bonus_points(df, latest)
+            bonus_points = self.calculate_bonus_points(latest)
             final_score += bonus_points
             final_score = min(final_score, 100)
             
@@ -419,7 +427,7 @@ class StockScreener:
         
         return scores
 
-    def calculate_bonus_points(self, df, latest):
+    def calculate_bonus_points(self, latest):
         """计算额外加分项"""
         bonus_points = 0
         
@@ -503,7 +511,7 @@ class StockScreener:
         elapsed_time = time.time() - start_time
         success_rate = len(self.results) / len(symbols) * 100
         
-        print(f"\n📊 筛选完成!")
+        print("\n📊 筛选完成!")
         print(f"⏱️  用时: {elapsed_time:.1f}秒")
         print(f"✅ 成功: {len(self.results)}只股票")
         print(f"❌ 失败: {len(self.failed_stocks)}只股票")
@@ -554,7 +562,7 @@ class StockScreener:
             
             # 评分构成
             breakdown = stock['score_breakdown']
-            print(f"   📊 评分构成:")
+            print("   📊 评分构成:")
             if 'technical_score' in breakdown:
                 weight = int(self.weights.get('technical_score', 0) * 100)
                 print(f"      🔧 技术分析: {breakdown['technical_score']}/100 (权重{weight}%)")
@@ -570,7 +578,7 @@ class StockScreener:
             
             # 技术分析详情
             tech_details = stock['technical_details']
-            print(f"   🔧 技术分析详情:")
+            print("   🔧 技术分析详情:")
             print(f"      📈 趋势得分: {tech_details.get('trend_score', 0):.1f}/100")
             print(f"      ⚡ 动量得分: {tech_details.get('momentum_score', 0):.1f}/100")
             print(f"      📉 波动得分: {tech_details.get('volatility_score', 0):.1f}/100")
@@ -580,7 +588,7 @@ class StockScreener:
             # 基本面详情
             if self.enable_fundamental and stock['fundamental_details']:
                 fund_details = stock['fundamental_details']
-                print(f"   📊 基本面详情:")
+                print("   📊 基本面详情:")
                 print(f"      💎 估值得分: {fund_details.get('valuation_score', 0):.1f}/100")
                 print(f"      💪 财务健康: {fund_details.get('health_score', 0):.1f}/100")
                 print(f"      💰 盈利能力: {fund_details.get('profitability_score', 0):.1f}/100")
@@ -591,7 +599,7 @@ class StockScreener:
             # 市场环境详情
             if self.enable_market_env and stock['market_details']:
                 market_details = stock['market_details']
-                print(f"   🌍 市场环境匹配:")
+                print("   🌍 市场环境匹配:")
                 if market_details.get('fit_reason'):
                     print(f"      💡 匹配原因: {market_details.get('fit_reason')}")
                 if market_details.get('market_environment'):
@@ -602,7 +610,7 @@ class StockScreener:
             # 情绪/资金面详情
             if self.enable_sentiment_fund and stock['sentiment_fund_details']:
                 sentiment_details = stock['sentiment_fund_details']
-                print(f"   🎭 情绪/资金面分析:")
+                print("   🎭 情绪/资金面分析:")
                 
                 vix = sentiment_details.get('vix_sentiment', {})
                 if vix:
@@ -621,7 +629,7 @@ class StockScreener:
                     print(f"      📈 相对表现: {relative_perf.get('performance', '跟随大盘')}")
             
             # 关键指标
-            print(f"   📋 关键指标:")
+            print("   📋 关键指标:")
             print(f"      RSI: {stock['rsi']}")
             print(f"      成交量比: {stock['volume_ratio']:.2f}x")
             print(f"      20日涨幅: {stock['momentum_20']:+.2f}%")
@@ -677,7 +685,7 @@ class StockScreener:
         except Exception as e:
             print(f"⚠️ 保存自选股池失败: {e}")
     
-    def add_to_watchlist(self, symbol, score, price=None, analysis_data=None):
+    def add_to_watchlist(self, symbol, score, price=None):
         """添加股票到自选股池"""
         watchlist = self.load_watchlist()
         
@@ -843,7 +851,6 @@ def run_stock_screening(source='sp500', max_stocks=None):
 
 def main():
     """主程序入口"""
-    import sys
     
     # 解析命令行参数
     if len(sys.argv) > 1:
@@ -869,7 +876,7 @@ def main():
                     print("🔍 分析自选股池中的股票...")
                     results, screener_obj = run_stock_screening('watchlist')
                     if results:
-                        print(f"\n✅ 自选股分析完成! TOP3结果:")
+                        print("\n✅ 自选股分析完成! TOP3结果:")
                         for i, stock in enumerate(results, 1):
                             print(f"  {i}. {stock['symbol']}: {stock['total_score']:.1f}分")
                 elif action == 'remove':
@@ -893,7 +900,7 @@ def main():
             results, screener_obj = run_stock_screening(command, max_stocks)
             
             if results:
-                print(f"\n✅ 筛选完成! TOP3结果:")
+                print("\n✅ 筛选完成! TOP3结果:")
                 for i, stock in enumerate(results, 1):
                     print(f"  {i}. {stock['symbol']}: {stock['total_score']:.1f}分")
             return
@@ -906,7 +913,7 @@ def main():
     # 默认运行标普500筛选
     results, screener_obj = run_stock_screening('sp500', max_stocks=50)
     if results:
-        print(f"\n✅ 筛选完成! TOP3结果:")
+        print("\n✅ 筛选完成! TOP3结果:")
         for i, stock in enumerate(results, 1):
             print(f"  {i}. {stock['symbol']}: {stock['final_score']:.1f}分")
 
