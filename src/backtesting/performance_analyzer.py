@@ -294,8 +294,14 @@ class PerformanceAnalyzer:
         try:
             # 转换为列表以便处理
             if hasattr(equity_curve, 'values'):
-                values = equity_curve.values.tolist()
-                dates = equity_curve.index.tolist()
+                if hasattr(equity_curve.values, 'tolist'):
+                    values = equity_curve.values.tolist()
+                else:
+                    values = list(equity_curve.values)
+                if hasattr(equity_curve, 'index'):
+                    dates = list(equity_curve.index)
+                else:
+                    dates = list(range(len(values)))
             else:
                 values = list(equity_curve)
                 dates = list(range(len(values)))

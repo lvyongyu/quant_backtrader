@@ -1,0 +1,35 @@
+{
+  "config": {
+    "symbol": "TEST",
+    "start_date": "2023-01-01",
+    "end_date": "2023-01-31",
+    "initial_capital": 50000,
+    "data_provider": "mock",
+    "strategy_name": "TestStrategy"
+  },
+  "optimization_time": "2025-09-30T22:26:16.841285",
+  "results_count": 3,
+  "top_results": [
+    {
+      "parameters": {
+        "period": 12
+      },
+      "fitness": 1.7768383628174307,
+      "metrics": {}
+    },
+    {
+      "parameters": {
+        "period": 8
+      },
+      "fitness": -0.3786618251869115,
+      "metrics": {}
+    },
+    {
+      "parameters": {
+        "period": 10
+      },
+      "fitness": -1.6352487387452168,
+      "metrics": {}
+    }
+  ]
+}
