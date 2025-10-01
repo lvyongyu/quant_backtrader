@@ -1,0 +1,56 @@
+{
+  "latency": {
+    "error": "No latency data collected",
+    "target_met": false
+  },
+  "throughput": {
+    "data_points": 0,
+    "elapsed_seconds": 30.193512201309204,
+    "throughput_per_second": 0.0,
+    "target_throughput": 10,
+    "target_met": false
+  },
+  "stability": {
+    "test_duration_seconds": 60.22757411003113,
+    "disconnection_count": 0,
+    "reconnection_count": 0,
+    "data_gaps_count": 0,
+    "total_gap_time_seconds": 0,
+    "uptime_percentage": 100.0,
+    "target_uptime": 99.9,
+    "target_met": true,
+    "error_events": []
+  },
+  "stress": {
+    "concurrent_connections": 3,
+    "successful_connections": 3,
+    "failed_connections": 0,
+    "total_data_points": 0,
+    "average_throughput": 0.0,
+    "total_errors": 0,
+    "success_rate": 100.0,
+    "individual_results": [
+      {
+        "connection_id": 0,
+        "data_count": 0,
+        "throughput": 0.0,
+        "errors": 0,
+        "duration": 60.29212713241577
+      },
+      {
+        "connection_id": 1,
+        "data_count": 0,
+        "throughput": 0.0,
+        "errors": 0,
+        "duration": 60.223483085632324
+      },
+      {
+        "connection_id": 2,
+        "data_count": 0,
+        "throughput": 0.0,
+        "errors": 0,
+        "duration": 60.16255807876587
+      }
+    ]
+  }
+}

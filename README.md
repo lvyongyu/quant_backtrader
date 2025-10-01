@@ -1,6 +1,65 @@
-# 智能股票分析与日内交易系统 v3.0
+# 企业级量化交易系统 v4.0 🚀
 
-基于Python的专业量化交易系统，提供四维度智能分析、投资决策支持和日内自动交易功能。
+基于Python和Backtrader的**专业量化交易平台**，集成高级分析、机器学习和现代投资组合理论。
+
+## 🎯 系统架构
+
+### 🏗️ **P1-2高级量化组件** ✨ **[全新上线]**
+- 🔬 **高级分析组件**: 50+技术指标、统计分析、异常检测、专业可视化
+- 🤖 **机器学习集成**: 价格预测、趋势分析、情感分析、多算法融合  
+- 📊 **投资组合分析**: 现代投资组合理论、智能风险管理、专业绩效归因
+
+### 📈 **基础交易功能**
+- 🔍 **智能选股**: 四维度分析(技术面40% + 基本面25% + 市场环境20% + 情绪资金面15%)
+- 📋 **投资组合管理**: 自动交易、风险控制、持仓跟踪
+- ⚡ **日内交易系统**: 毫秒级响应、多策略组合、严格风控
+
+### 🛠️ **技术特性**
+- 🏛️ **企业级架构**: 模块化设计、低耦合高内聚、易于扩展
+- 🛡️ **类型安全**: 完整类型提示、数据验证、错误处理
+- ⚡ **高性能**: 并行计算、数据缓存、算法优化
+- 🔗 **集成友好**: 与Backtrader框架无缝集成
+
+## 🎉 P1-2高级功能亮点
+
+### 🔬 **现代投资组合理论** 
+```python
+# 6种优化算法一键使用
+optimizer = PortfolioOptimizer(risk_free_rate=0.02)
+result = optimizer.optimize_portfolio(assets, OptimizationMethod.MAXIMUM_SHARPE)
+print(f"最优夏普比率: {result.sharpe_ratio:.3f}")
+```
+
+## 📚 **使用指南**
+
+🚀 **[5分钟快速开始](docs/QUICK_START.md)** - 新手入门，5分钟上手选股交易
+
+🎯 **[完整使用流程](docs/USER_GUIDE_COMPLETE.md)** - 从选股到自动交易的详细教程
+
+📋 **[命令参考手册](docs/COMMAND_REFERENCE.md)** - 所有命令的完整参考和示例
+
+**核心使用场景**:
+- 🔍 **智能选股**: 四维分析 + P1-2机器学习选股
+- 📊 **投资组合优化**: 现代投资组合理论科学配置  
+- 🤖 **自动交易**: 多策略融合的自动化交易
+- ⚡ **日内交易**: 毫秒级高频交易系统
+- 🛡️ **风险管理**: 企业级专业风险分析
+
+### 🤖 **机器学习价格预测**
+```python
+# 多算法融合预测
+prediction_engine = PredictionEngine()
+predictions = prediction_engine.predict_ensemble(price_data, horizon=5)
+print(f"5日价格预测: {predictions.predicted_value:.2f} (置信度: {predictions.confidence:.1%})")
+```
+
+### 📊 **专业风险管理**
+```python
+# 全面风险分析
+risk_analyzer = RiskAnalyzer()
+risk_metrics = risk_analyzer.calculate_portfolio_risk_metrics(portfolio)
+print(f"VaR (95%): {risk_metrics.var_95:.2%}")
+```
 
 ## 🎯 核心功能
 
@@ -29,7 +88,7 @@
 - **持仓跟踪**: 实时盈亏分析和组合优化
 - **交易记录**: 完整的交易历史和手续费统计
 
-### ⚡ 5. 日内短线交易系统 🆕
+### ⚡ 5. 日内短线交易系统
 - **毫秒级响应**: 总体延迟 < 500ms
 - **多策略组合**: 动量突破 + 均线反转 + 成交量确认
 - **严格风控**: 单笔亏损<0.5%，日亏损<2%
@@ -39,10 +98,44 @@
 
 ## 🚀 快速开始
 
-### 安装依赖
+### 📦 环境安装
 ```bash
+# 基础依赖
 pip install -r requirements.txt
+
+# P1-2高级组件依赖 (推荐)
+pip install scipy scikit-learn matplotlib seaborn plotly
 ```
+
+### ⚡ **P1-2高级组件 - 30秒快速体验**
+
+```python
+# 1. 现代投资组合优化
+from portfolio_analytics import PortfolioOptimizer, OptimizationMethod
+
+optimizer = PortfolioOptimizer(risk_free_rate=0.02)
+result = optimizer.optimize_portfolio(assets, OptimizationMethod.MAXIMUM_SHARPE)
+print(f"✅ 最优夏普比率: {result.sharpe_ratio:.3f}")
+
+# 2. 机器学习价格预测  
+from ml_integration import PredictionEngine
+
+prediction_engine = PredictionEngine()
+predictions = prediction_engine.predict_ensemble(price_data, horizon=5)
+print(f"🤖 5日预测价格: ${predictions.predicted_value:.2f}")
+
+# 3. 专业风险分析
+from portfolio_analytics.risk_analyzer import RiskAnalyzer
+
+risk_analyzer = RiskAnalyzer()
+risk_metrics = risk_analyzer.calculate_portfolio_risk_metrics(portfolio)
+print(f"📊 投资组合VaR: {risk_metrics.var_95:.2%}")
+```
+
+### 📚 **详细文档**
+- 📖 [P1-2完整使用手册](docs/P1-2_USER_MANUAL.md) - **强烈推荐阅读**
+- 🔧 [API参考文档](docs/API_REFERENCE.md)
+- 💡 [最佳实践指南](docs/BEST_PRACTICES.md)
 
 ### 统一入口使用
 
@@ -58,7 +151,31 @@ python3 main.py screen nasdaq100 10
 python3 main.py screen chinese 3
 ```
 
-#### 📋 自选股管理
+#### � **P1-2高级组件使用** ✨
+```bash
+# 运行P1-2核心功能验证
+python3 test_p1_2_core_validation.py
+
+# 投资组合优化分析
+python3 -c "
+from portfolio_analytics import PortfolioOptimizer, OptimizationMethod
+# 在这里添加你的投资组合优化代码
+"
+
+# 机器学习价格预测
+python3 -c "
+from ml_integration import PredictionEngine
+# 在这里添加你的预测分析代码
+"
+
+# 风险管理分析
+python3 -c "
+from portfolio_analytics.risk_analyzer import RiskAnalyzer
+# 在这里添加你的风险分析代码
+"
+```
+
+#### �📋 自选股管理
 ```bash
 # 查看自选股池
 python3 main.py watchlist show
