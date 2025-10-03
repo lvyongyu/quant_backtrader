@@ -71,13 +71,18 @@ class APIHandler(BaseHTTPRequestHandler):
     def do_POST(self):
         """处理POST请求"""
         try:
-            content_length = int(self.headers['Content-Length'])
-            post_data = self.rfile.read(content_length)
-            
-            # 尝试解析JSON数据，如果失败则使用空字典
-            try:
-                data = json.loads(post_data.decode('utf-8'))
-            except:
+            # 安全地获取Content-Length
+            content_length = self.headers.get('Content-Length')
+            if content_length:
+                content_length = int(content_length)
+                post_data = self.rfile.read(content_length)
+                
+                # 尝试解析JSON数据，如果失败则使用空字典
+                try:
+                    data = json.loads(post_data.decode('utf-8'))
+                except:
+                    data = {}
+            else:
                 data = {}
             
             if self.path == '/api/backtest':
@@ -153,20 +158,217 @@ class APIHandler(BaseHTTPRequestHandler):
     # ===================
     
     def api_system_status(self):
-        """系统状态API"""
-        status = {
-            "system": "online",
-            "time": datetime.now().strftime('%Y-%m-%d %H:%M:%S'),
-            "memory": "normal",
-            "network": "connected",
-            "components": {
-                "data_engine": "running",
-                "strategy_engine": "running",
-                "risk_engine": "running",
-                "trading_engine": "standby"
+        """系统状态API - 返回真实系统状态"""
+        try:
+            # 尝试获取真实系统信息
+            memory_info = self._get_memory_info()
+            cpu_info = self._get_cpu_info()
+            disk_info = self._get_disk_info()
+            
+            # 检查核心组件状态
+            components_status = self._check_components_status()
+            
+            # 检查网络连接
+            network_status = self._check_network_status()
+            
+            # 检查数据文件状态
+            data_files_status = self._check_data_files_status()
+            
+            status = {
+                "system": "online",
+                "time": datetime.now().strftime('%Y-%m-%d %H:%M:%S'),
+                "uptime": self._get_system_uptime(),
+                "memory": memory_info,
+                "cpu": cpu_info,
+                "disk": disk_info,
+                "network": network_status,
+                "components": components_status,
+                "data_files": data_files_status,
+                "api_server": {
+                    "status": "running",
+                    "host": "localhost",
+                    "port": 8000,
+                    "requests_handled": getattr(self, '_request_count', 0)
+                }
             }
-        }
+        except Exception as e:
+            # 如果获取真实状态失败，返回基础状态
+            status = {
+                "system": "online",
+                "time": datetime.now().strftime('%Y-%m-%d %H:%M:%S'),
+                "memory": {"status": "unknown", "error": str(e)},
+                "network": "unknown",
+                "components": {
+                    "data_engine": "unknown",
+                    "strategy_engine": "unknown", 
+                    "risk_engine": "unknown",
+                    "trading_engine": "unknown"
+                },
+                "error": f"系统状态检查失败: {str(e)}"
+            }
+        
         self.send_json_response(status)
+    
+    def _get_memory_info(self):
+        """获取内存信息"""
+        try:
+            import psutil
+            memory_info = psutil.virtual_memory()
+            return {
+                "usage_percent": round(memory_info.percent, 1),
+                "available_gb": round(memory_info.available / (1024**3), 1),
+                "total_gb": round(memory_info.total / (1024**3), 1),
+                "status": "normal" if memory_info.percent < 80 else "warning" if memory_info.percent < 90 else "critical"
+            }
+        except ImportError:
+            # 备用方法：使用系统命令
+            try:
+                import subprocess
+                result = subprocess.run(['vm_stat'], capture_output=True, text=True, timeout=5)
+                if result.returncode == 0:
+                    return {"status": "normal", "source": "system_command"}
+                else:
+                    return {"status": "unknown", "source": "fallback"}
+            except Exception:
+                return {"status": "unknown", "source": "fallback"}
+        except Exception as e:
+            return {"status": "error", "error": str(e)}
+    
+    def _get_cpu_info(self):
+        """获取CPU信息"""
+        try:
+            import psutil
+            cpu_percent = psutil.cpu_percent(interval=1)
+            return {
+                "usage_percent": round(cpu_percent, 1),
+                "status": "normal" if cpu_percent < 70 else "warning" if cpu_percent < 85 else "critical"
+            }
+        except ImportError:
+            return {"status": "unknown", "source": "psutil_unavailable"}
+        except Exception as e:
+            return {"status": "error", "error": str(e)}
+    
+    def _get_disk_info(self):
+        """获取磁盘信息"""
+        try:
+            import psutil
+            disk_info = psutil.disk_usage('/')
+            return {
+                "usage_percent": round(disk_info.percent, 1),
+                "free_gb": round(disk_info.free / (1024**3), 1),
+                "total_gb": round(disk_info.total / (1024**3), 1),
+                "status": "normal" if disk_info.percent < 80 else "warning" if disk_info.percent < 90 else "critical"
+            }
+        except ImportError:
+            return {"status": "unknown", "source": "psutil_unavailable"}
+        except Exception as e:
+            return {"status": "error", "error": str(e)}
+    
+    def _check_components_status(self):
+        """检查系统组件状态"""
+        components = {}
+        
+        try:
+            # 检查主要Python模块是否可导入
+            modules_to_check = [
+                ('data_engine', 'src.data'),
+                ('strategy_engine', 'src.strategies'), 
+                ('risk_engine', 'src.risk'),
+                ('analytics_engine', 'src.portfolio_analytics')
+            ]
+            
+            for component, module in modules_to_check:
+                try:
+                    __import__(module)
+                    components[component] = "available"
+                except ImportError:
+                    components[component] = "unavailable"
+                except Exception:
+                    components[component] = "error"
+            
+            # 检查数据文件访问
+            data_dir = os.path.join(os.path.dirname(__file__), '..', '..', 'data')
+            if os.path.exists(data_dir) and os.access(data_dir, os.R_OK | os.W_OK):
+                components['data_storage'] = "accessible"
+            else:
+                components['data_storage'] = "inaccessible"
+                
+            # 检查交易引擎状态
+            components['trading_engine'] = "standby"  # 默认待机状态
+            
+        except Exception as e:
+            components = {
+                "data_engine": "error",
+                "strategy_engine": "error",
+                "risk_engine": "error", 
+                "trading_engine": "error",
+                "error": str(e)
+            }
+        
+        return components
+    
+    def _check_network_status(self):
+        """检查网络连接状态"""
+        try:
+            import urllib.request
+            # 测试网络连接
+            urllib.request.urlopen('https://finance.yahoo.com', timeout=5)
+            return "connected"
+        except Exception:
+            return "disconnected"
+    
+    def _check_data_files_status(self):
+        """检查数据文件状态"""
+        data_dir = os.path.join(os.path.dirname(__file__), '..', '..', 'data')
+        files_status = {}
+        
+        critical_files = [
+            'watchlist.json',
+            'portfolio.json', 
+            'transactions.json',
+            'strategy_configs.json'
+        ]
+        
+        for filename in critical_files:
+            file_path = os.path.join(data_dir, filename)
+            if os.path.exists(file_path):
+                try:
+                    # 检查文件大小和修改时间
+                    stat = os.stat(file_path)
+                    files_status[filename] = {
+                        "status": "ok",
+                        "size_kb": round(stat.st_size / 1024, 1),
+                        "modified": datetime.fromtimestamp(stat.st_mtime).strftime('%Y-%m-%d %H:%M:%S')
+                    }
+                except Exception as e:
+                    files_status[filename] = {"status": "error", "error": str(e)}
+            else:
+                files_status[filename] = {"status": "missing"}
+        
+        return files_status
+    
+    def _get_system_uptime(self):
+        """获取系统运行时间"""
+        try:
+            import psutil
+            boot_time = psutil.boot_time()
+            uptime_seconds = datetime.now().timestamp() - boot_time
+            hours = int(uptime_seconds // 3600)
+            minutes = int((uptime_seconds % 3600) // 60)
+            return f"{hours}h {minutes}m"
+        except ImportError:
+            # 备用方法：使用系统命令
+            try:
+                import subprocess
+                if sys.platform == "darwin":  # macOS
+                    result = subprocess.run(['uptime'], capture_output=True, text=True, timeout=5)
+                    if result.returncode == 0:
+                        return result.stdout.strip().split('up')[1].split(',')[0].strip()
+                return "unknown"
+            except Exception:
+                return "unknown"
+        except Exception:
+            return "unknown"
     
     def api_stocks_data(self):
         """股票数据API"""

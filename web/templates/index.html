@@ -177,15 +177,88 @@
                 
                 const status = await api.getSystemStatus();
                 
+                // 格式化内存信息
+                let memoryInfo = '未知';
+                if (status.memory && typeof status.memory === 'object') {
+                    if (status.memory.usage_percent !== undefined) {
+                        const memStatus = status.memory.status;
+                        const statusIcon = memStatus === 'critical' ? '🚨' : 
+                                         memStatus === 'warning' ? '⚠️' : '✅';
+                        memoryInfo = `${statusIcon} ${status.memory.usage_percent}% (${status.memory.available_gb}GB可用)`;
+                    } else {
+                        memoryInfo = status.memory.status || '未知';
+                    }
+                } else if (typeof status.memory === 'string') {
+                    memoryInfo = status.memory;
+                }
+                
+                // 格式化网络状态
+                const networkIcon = status.network === 'connected' ? '✅' : '❌';
+                const networkText = status.network === 'connected' ? '已连接' : '未连接';
+                
+                // 格式化组件状态
+                const getComponentIcon = (componentStatus) => {
+                    switch(componentStatus) {
+                        case 'running': case 'available': case 'accessible': return '✅';
+                        case 'standby': return '⏸️';
+                        case 'unavailable': case 'inaccessible': return '❌';
+                        case 'error': return '🚨';
+                        default: return '❓';
+                    }
+                };
+                
+                const getComponentText = (componentStatus) => {
+                    switch(componentStatus) {
+                        case 'running': return '运行中';
+                        case 'available': return '可用';
+                        case 'accessible': return '可访问';
+                        case 'standby': return '待机';
+                        case 'unavailable': return '不可用';
+                        case 'inaccessible': return '不可访问';
+                        case 'error': return '错误';
+                        default: return componentStatus || '未知';
+                    }
+                };
+                
+                const dataEngine = status.components?.data_engine || 'unknown';
+                const strategyEngine = status.components?.strategy_engine || 'unknown';
+                const riskEngine = status.components?.risk_engine || 'unknown';
+                const tradingEngine = status.components?.trading_engine || 'unknown';
+                
+                // 判断系统整体状态
+                const hasErrors = status.memory?.status === 'critical' || 
+                                status.network === 'disconnected' ||
+                                dataEngine === 'error' || strategyEngine === 'error';
+                
+                const hasWarnings = status.memory?.status === 'warning' ||
+                                  dataEngine === 'unavailable' || strategyEngine === 'unavailable';
+                
+                let systemIcon = '✅';
+                let systemText = '系统运行正常';
+                let statusClass = 'status-good';
+                
+                if (hasErrors) {
+                    systemIcon = '🚨';
+                    systemText = '系统存在问题';
+                    statusClass = 'status-error';
+                } else if (hasWarnings) {
+                    systemIcon = '⚠️';
+                    systemText = '系统运行有警告';
+                    statusClass = 'status-warning';
+                }
+                
                 statusElement.innerHTML = `
-                    ✅ 系统运行正常<br>
+                    ${systemIcon} ${systemText}<br>
                     🕐 启动时间: ${status.time}<br>
-                    💾 内存使用: ${status.memory}<br>
-                    🌐 网络连接: ${status.network}<br>
-                    🔧 数据引擎: ${status.components?.data_engine || '运行中'}<br>
-                    🤖 策略引擎: ${status.components?.strategy_engine || '运行中'}
+                    ⏱️ 运行时长: ${status.uptime || '未知'}<br>
+                    💾 内存使用: ${memoryInfo}<br>
+                    🌐 网络连接: ${networkIcon} ${networkText}<br>
+                    🔧 数据引擎: ${getComponentIcon(dataEngine)} ${getComponentText(dataEngine)}<br>
+                    🤖 策略引擎: ${getComponentIcon(strategyEngine)} ${getComponentText(strategyEngine)}<br>
+                    🛡️ 风险引擎: ${getComponentIcon(riskEngine)} ${getComponentText(riskEngine)}<br>
+                    💼 交易引擎: ${getComponentIcon(tradingEngine)} ${getComponentText(tradingEngine)}
                 `;
-                statusElement.className = 'status-info status-good';
+                statusElement.className = `status-info ${statusClass}`;
                 
             } catch (error) {
                 console.error('获取系统状态失败:', error);
