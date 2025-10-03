@@ -578,7 +578,7 @@ if __name__ == "__main__":
     try:
         # 需要导入策略模块
         import sys
-        sys.path.append('/Users/Eric/Documents/backtrader_trading/core')
+        sys.path.append('/Users/Eric/Documents/backtrader_trading/src/core')
         
         from strategy_manager import create_strategy
         

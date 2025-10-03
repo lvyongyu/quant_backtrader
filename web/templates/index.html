@@ -1,0 +1,213 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>🚀 量化交易系统</title>
+    <link rel="stylesheet" href="/static/css/main.css">
+</head>
+<body>
+    <div class="container">
+        <div class="header">
+            <h1>🚀 量化交易系统</h1>
+            <p>简单 · 可靠 · 高效</p>
+        </div>
+        
+        <div class="cards">
+            <div class="card">
+                <h3>📊 系统状态</h3>
+                <div class="status-info status-good" id="system-status">
+                    <div class="loading"></div> 正在加载系统状态...
+                </div>
+                <button class="btn" onclick="loadSystemStatus()">🔄 刷新状态</button>
+            </div>
+            
+            <div class="card">
+                <h3>📋 股票信息</h3>
+                <div class="status-info status-good" id="stocks-summary">
+                    📈 追踪股票: 5 只<br>
+                    💰 总价值: $2,847,350<br>
+                    📊 平均评分: 85.2<br>
+                    🔄 最后更新: 刚刚
+                </div>
+                <a href="/stocks" class="btn large">📊 查看股票详情</a>
+            </div>
+            
+            <div class="card">
+                <h3>⚡ 快速操作</h3>
+                <div class="status-info">
+                    <p>选择您要执行的操作：</p>
+                </div>
+                <a href="/monitoring" class="btn primary">🚀 启动监控</a>
+                <a href="/auto_trade" class="btn primary">⚡ 自动交易</a>
+                <a href="/backtest" class="btn secondary">📈 运行回测</a>
+                <a href="/reports" class="btn">📊 查看报告</a>
+            </div>
+        </div>
+        
+        <div class="footer">
+            <p>© 2025 量化交易系统 | 让投资变得简单智能</p>
+        </div>
+    </div>
+    
+    <div class="card">
+        <h3>📋 自选股快速管理</h3>
+        <div class="watchlist-quick-manage">
+            <div class="quick-add-section">
+                <input type="text" id="quick-stock-input" placeholder="输入股票代码 (如: AAPL)" style="margin-right: 10px;">
+                <button id="quick-add-btn" class="btn primary small">添加到自选股</button>
+            </div>
+            <div id="current-watchlist" class="current-watchlist">
+                <div class="watchlist-loading">正在加载自选股列表...</div>
+            </div>
+        </div>
+    </div>
+
+    <script src="/static/js/main.js"></script>
+    <script>
+        // 页面特定的JavaScript
+        
+        // 自选股管理类
+        class HomeWatchlistManager {
+            constructor() {
+                this.api = new TradingAPI();
+                this.watchlist = [];
+                this.init();
+            }
+            
+            async init() {
+                await this.loadWatchlist();
+                this.bindEvents();
+            }
+            
+            bindEvents() {
+                document.getElementById('quick-add-btn').addEventListener('click', () => this.addStock());
+                document.getElementById('quick-stock-input').addEventListener('keypress', (e) => {
+                    if (e.key === 'Enter') this.addStock();
+                });
+            }
+            
+            async loadWatchlist() {
+                try {
+                    const response = await this.api.get('/api/watchlist');
+                    if (response.success && response.data) {
+                        this.watchlist = response.data;
+                    } else {
+                        this.watchlist = ['AAPL', 'TSLA', 'NVDA', 'MSFT', 'GOOGL'];
+                    }
+                    this.updateWatchlistDisplay();
+                } catch (error) {
+                    console.error('加载自选股失败:', error);
+                    this.watchlist = ['AAPL', 'TSLA', 'NVDA', 'MSFT', 'GOOGL'];
+                    this.updateWatchlistDisplay();
+                }
+            }
+            
+            async addStock() {
+                const input = document.getElementById('quick-stock-input');
+                const symbol = input.value.trim().toUpperCase();
+                
+                if (!symbol) {
+                    UIUtils.showAlert('请输入股票代码', 'warning');
+                    return;
+                }
+                
+                if (this.watchlist.includes(symbol)) {
+                    UIUtils.showAlert('该股票已在自选股中', 'info');
+                    return;
+                }
+                
+                try {
+                    const response = await this.api.post('/api/watchlist/add', { symbol: symbol });
+                    if (response.success) {
+                        this.watchlist = response.data;
+                        this.updateWatchlistDisplay();
+                        input.value = '';
+                        UIUtils.showAlert(`✅ 已添加 ${symbol} 到自选股`, 'success');
+                    } else {
+                        UIUtils.showAlert(`❌ 添加失败: ${response.error}`, 'error');
+                    }
+                } catch (error) {
+                    console.error('添加股票失败:', error);
+                    UIUtils.showAlert('添加失败: 网络错误', 'error');
+                }
+            }
+            
+            async removeStock(symbol) {
+                try {
+                    const response = await this.api.post('/api/watchlist/remove', { symbol: symbol });
+                    if (response.success) {
+                        this.watchlist = response.data;
+                        this.updateWatchlistDisplay();
+                        UIUtils.showAlert(`✅ 已移除 ${symbol}`, 'info');
+                    } else {
+                        UIUtils.showAlert(`❌ 移除失败: ${response.error}`, 'error');
+                    }
+                } catch (error) {
+                    console.error('移除股票失败:', error);
+                    UIUtils.showAlert('移除失败: 网络错误', 'error');
+                }
+            }
+            
+            updateWatchlistDisplay() {
+                const container = document.getElementById('current-watchlist');
+                
+                if (this.watchlist.length === 0) {
+                    container.innerHTML = '<div class="watchlist-loading">自选股列表为空</div>';
+                    return;
+                }
+                
+                container.innerHTML = this.watchlist.map(symbol => `
+                    <div class="watchlist-item">
+                        <span>${symbol}</span>
+                        <button class="remove-stock" onclick="homeWatchlistManager.removeStock('${symbol}')" title="移除">×</button>
+                    </div>
+                `).join('');
+            }
+        }
+        
+        // 全局实例
+        let homeWatchlistManager;
+        
+        async function loadSystemStatus() {
+            const statusElement = document.getElementById('system-status');
+            
+            try {
+                UIUtils.showLoading(statusElement, '正在获取系统状态...');
+                
+                const status = await api.getSystemStatus();
+                
+                statusElement.innerHTML = `
+                    ✅ 系统运行正常<br>
+                    🕐 启动时间: ${status.time}<br>
+                    💾 内存使用: ${status.memory}<br>
+                    🌐 网络连接: ${status.network}<br>
+                    🔧 数据引擎: ${status.components?.data_engine || '运行中'}<br>
+                    🤖 策略引擎: ${status.components?.strategy_engine || '运行中'}
+                `;
+                statusElement.className = 'status-info status-good';
+                
+            } catch (error) {
+                console.error('获取系统状态失败:', error);
+                statusElement.innerHTML = `
+                    ❌ 系统状态获取失败<br>
+                    🔧 请检查网络连接<br>
+                    💡 尝试刷新页面
+                `;
+                statusElement.className = 'status-info status-error';
+            }
+        }
+
+                // 页面加载完成后初始化
+        document.addEventListener('DOMContentLoaded', async () => {
+            const api = new TradingAPI();
+            
+            // 初始化自选股管理器
+            homeWatchlistManager = new HomeWatchlistManager();
+            
+            // 加载系统状态
+            await loadSystemStatus();
+        });
+    </script>
+</body>
+</html>

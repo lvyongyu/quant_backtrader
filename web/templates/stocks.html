@@ -1,0 +1,89 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>📊 股票监控 - 量化交易系统</title>
+    <link rel="stylesheet" href="/static/css/main.css">
+</head>
+<body>
+    <div class="container">
+        <a href="/" class="back-btn">← 返回主页</a>
+        <h1>📊 股票实时监控</h1>
+        
+        <div class="card">
+            <h3>🔍 自选股管理</h3>
+            <div class="search-container">
+                <input type="text" id="stock-search" placeholder="输入股票代码 (如: AAPL, TSLA, NVDA)">
+                <button id="add-stock-btn" class="btn primary">添加到自选股</button>
+            </div>
+            <div class="quick-add">
+                <span>快速添加:</span>
+                <button class="btn small" data-symbol="AAPL">苹果 (AAPL)</button>
+                <button class="btn small" data-symbol="TSLA">特斯拉 (TSLA)</button>
+                <button class="btn small" data-symbol="NVDA">英伟达 (NVDA)</button>
+                <button class="btn small" data-symbol="MSFT">微软 (MSFT)</button>
+                <button class="btn small" data-symbol="GOOGL">谷歌 (GOOGL)</button>
+            </div>
+        </div>
+        
+        <div class="card">
+            <h3>📈 自选股监控 <span id="update-time"></span></h3>
+            <div class="controls">
+                <button id="refresh-btn" class="btn">🔄 刷新数据</button>
+                <button id="auto-refresh-btn" class="btn">⏰ 自动刷新</button>
+                <select id="refresh-interval">
+                    <option value="5">5秒</option>
+                    <option value="10" selected>10秒</option>
+                    <option value="30">30秒</option>
+                    <option value="60">1分钟</option>
+                </select>
+            </div>
+            
+            <div id="stocks-grid" class="stocks-grid">
+                <div class="stock-placeholder">
+                    🎯 正在加载自选股列表...
+                </div>
+            </div>
+        </div>
+        
+        <div class="card">
+            <h3>📊 市场概览</h3>
+            <div class="market-overview">
+                <div class="market-item">
+                    <div class="market-label">道琼斯指数</div>
+                    <div class="market-value">34,567.89</div>
+                    <div class="market-change positive">+0.85%</div>
+                </div>
+                <div class="market-item">
+                    <div class="market-label">纳斯达克</div>
+                    <div class="market-value">13,987.45</div>
+                    <div class="market-change negative">-0.23%</div>
+                </div>
+                <div class="market-item">
+                    <div class="market-label">标普500</div>
+                    <div class="market-value">4,456.78</div>
+                    <div class="market-change positive">+0.42%</div>
+                </div>
+                <div class="market-item">
+                    <div class="market-label">VIX恐慌指数</div>
+                    <div class="market-value">18.92</div>
+                    <div class="market-change negative">-2.15%</div>
+                </div>
+            </div>
+        </div>
+        
+        <div class="alert info">
+            <strong>💡 自选股管理提示:</strong>
+            <br>• 添加到自选股的股票会自动显示在监控列表
+            <br>• 股票数据每10秒自动更新
+            <br>• 点击股票卡片可查看详细信息
+            <br>• 绿色表示上涨，红色表示下跌
+            <br>• 支持添加/删除自选股票，数据会保存到本地
+        </div>
+    </div>
+
+    <script src="/static/js/main.js"></script>
+    <script src="/static/js/stocks.js"></script>
+</body>
+</html>

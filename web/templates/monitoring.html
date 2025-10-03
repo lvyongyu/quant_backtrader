@@ -1,0 +1,202 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>📊 监控报告 - 量化交易系统</title>
+    <link rel="stylesheet" href="/static/css/main.css">
+</head>
+<body>
+    <div class="container">
+        <a href="/" class="back-btn">← 返回主页</a>
+        <h1>📊 系统监控报告</h1>
+        
+        <div class="card">
+            <h3>🎯 系统状态总览</h3>
+            <div class="status-grid">
+                <div class="status-item">
+                    <div class="status-label">系统状态</div>
+                    <div class="status-value online">🟢 正常运行</div>
+                </div>
+                <div class="status-item">
+                    <div class="status-label">运行时间</div>
+                    <div class="status-value" id="uptime">2小时45分钟</div>
+                </div>
+                <div class="status-item">
+                    <div class="status-label">监控股票</div>
+                    <div class="status-value" id="monitored-stocks">5只</div>
+                </div>
+                <div class="status-item">
+                    <div class="status-label">活跃策略</div>
+                    <div class="status-value" id="active-strategies">3个</div>
+                </div>
+                <div class="status-item">
+                    <div class="status-label">今日交易</div>
+                    <div class="status-value" id="today-trades">12笔</div>
+                </div>
+                <div class="status-item">
+                    <div class="status-label">总盈亏</div>
+                    <div class="status-value positive" id="total-pnl">+$1,245.67</div>
+                </div>
+            </div>
+        </div>
+        
+        <div class="card">
+            <h3>📈 性能指标</h3>
+            <div class="metrics-container">
+                <div class="metric-card">
+                    <h4>📊 收益率</h4>
+                    <div class="metric-value positive">+12.45%</div>
+                    <div class="metric-detail">本月累计收益</div>
+                </div>
+                <div class="metric-card">
+                    <h4>🎯 胜率</h4>
+                    <div class="metric-value">68.2%</div>
+                    <div class="metric-detail">盈利交易占比</div>
+                </div>
+                <div class="metric-card">
+                    <h4>📉 最大回撤</h4>
+                    <div class="metric-value negative">-5.8%</div>
+                    <div class="metric-detail">历史最大回撤</div>
+                </div>
+                <div class="metric-card">
+                    <h4>⚡ 夏普比率</h4>
+                    <div class="metric-value">1.85</div>
+                    <div class="metric-detail">风险调整收益</div>
+                </div>
+            </div>
+        </div>
+        
+        <div class="card">
+            <h3>🔔 系统日志</h3>
+            <div class="log-controls">
+                <select id="log-level">
+                    <option value="all">所有日志</option>
+                    <option value="error">错误</option>
+                    <option value="warning">警告</option>
+                    <option value="info">信息</option>
+                </select>
+                <button id="clear-log-btn" class="btn small">清空日志</button>
+                <button id="export-log-btn" class="btn small">导出日志</button>
+            </div>
+            <div id="system-log" class="log-container">
+                <div class="log-entry info">
+                    <span class="log-time">[14:32:15]</span>
+                    <span class="log-level">INFO</span>
+                    <span class="log-message">系统正常启动，开始监控股票数据</span>
+                </div>
+                <div class="log-entry success">
+                    <span class="log-time">[14:32:18]</span>
+                    <span class="log-level">SUCCESS</span>
+                    <span class="log-message">成功连接到数据源，获取到5只股票的实时数据</span>
+                </div>
+                <div class="log-entry warning">
+                    <span class="log-time">[14:35:42]</span>
+                    <span class="log-level">WARNING</span>
+                    <span class="log-message">TSLA股价波动异常，当前涨幅超过5%</span>
+                </div>
+                <div class="log-entry success">
+                    <span class="log-time">[14:40:12]</span>
+                    <span class="log-level">SUCCESS</span>
+                    <span class="log-message">执行买入策略：AAPL 100股 @ $185.42</span>
+                </div>
+                <div class="log-entry info">
+                    <span class="log-time">[14:45:33]</span>
+                    <span class="log-level">INFO</span>
+                    <span class="log-message">策略回测完成，SimpleMA策略年化收益率: 15.6%</span>
+                </div>
+            </div>
+        </div>
+        
+        <div class="card">
+            <h3>📋 交易历史</h3>
+            <div class="table-container">
+                <table class="trades-table">
+                    <thead>
+                        <tr>
+                            <th>时间</th>
+                            <th>股票</th>
+                            <th>操作</th>
+                            <th>数量</th>
+                            <th>价格</th>
+                            <th>盈亏</th>
+                        </tr>
+                    </thead>
+                    <tbody id="trades-tbody">
+                        <tr>
+                            <td>14:40:12</td>
+                            <td>AAPL</td>
+                            <td class="buy">买入</td>
+                            <td>100</td>
+                            <td>$185.42</td>
+                            <td class="positive">+$234.50</td>
+                        </tr>
+                        <tr>
+                            <td>14:35:28</td>
+                            <td>TSLA</td>
+                            <td class="sell">卖出</td>
+                            <td>50</td>
+                            <td>$242.18</td>
+                            <td class="positive">+$156.80</td>
+                        </tr>
+                        <tr>
+                            <td>14:28:45</td>
+                            <td>NVDA</td>
+                            <td class="buy">买入</td>
+                            <td>25</td>
+                            <td>$425.67</td>
+                            <td class="negative">-$89.25</td>
+                        </tr>
+                        <tr>
+                            <td>14:15:33</td>
+                            <td>MSFT</td>
+                            <td class="sell">卖出</td>
+                            <td>75</td>
+                            <td>$332.15</td>
+                            <td class="positive">+$445.12</td>
+                        </tr>
+                    </tbody>
+                </table>
+            </div>
+        </div>
+        
+        <div class="card">
+            <h3>⚠️ 风险监控</h3>
+            <div class="risk-indicators">
+                <div class="risk-item">
+                    <div class="risk-label">仓位风险</div>
+                    <div class="risk-meter">
+                        <div class="risk-bar" style="width: 65%; background: #ff9800;"></div>
+                    </div>
+                    <div class="risk-value">中等 (65%)</div>
+                </div>
+                <div class="risk-item">
+                    <div class="risk-label">市场风险</div>
+                    <div class="risk-meter">
+                        <div class="risk-bar" style="width: 45%; background: #4caf50;"></div>
+                    </div>
+                    <div class="risk-value">较低 (45%)</div>
+                </div>
+                <div class="risk-item">
+                    <div class="risk-label">流动性风险</div>
+                    <div class="risk-meter">
+                        <div class="risk-bar" style="width: 25%; background: #4caf50;"></div>
+                    </div>
+                    <div class="risk-value">低 (25%)</div>
+                </div>
+            </div>
+        </div>
+        
+        <div class="alert info">
+            <strong>💡 报告说明:</strong>
+            <br>• 数据每分钟自动更新
+            <br>• 可导出详细的交易和系统日志
+            <br>• 风险指标基于实时市场数据计算
+            <br>• 建议定期检查系统状态和风险水平
+        </div>
+    </div>
+
+    <script src="/static/js/main.js"></script>
+    <script src="/static/js/monitoring.js"></script>
+</body>
+</html>

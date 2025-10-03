@@ -1,0 +1,127 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>📈 策略回测 - 量化交易系统</title>
+    <link rel="stylesheet" href="/static/css/main.css">
+</head>
+<body>
+    <div class="container">
+        <a href="/" class="back-btn">← 返回主页</a>
+        <h1>📈 策略回测系统</h1>
+        
+        <div class="tabs">
+            <button class="tab active" data-tab="single">🎯 单股回测</button>
+            <button class="tab" data-tab="portfolio">📊 组合回测</button>
+        </div>
+        
+        <!-- 单股回测 -->
+        <div id="single" class="tab-content active">
+            <div class="card">
+                <h3>🎯 单股回测配置</h3>
+                <form id="single-backtest-form">
+                    <div class="config-grid">
+                        <div class="config-item">
+                            <label>选择股票:</label>
+                            <select name="symbol" required>
+                                <option value="AAPL">AAPL - 苹果公司</option>
+                                <option value="TSLA">TSLA - 特斯拉</option>
+                                <option value="NVDA">NVDA - 英伟达</option>
+                                <option value="MSFT">MSFT - 微软</option>
+                                <option value="GOOGL">GOOGL - 谷歌</option>
+                                <option value="AMZN">AMZN - 亚马逊</option>
+                                <option value="META">META - Meta</option>
+                                <option value="NFLX">NFLX - 奈飞</option>
+                            </select>
+                        </div>
+                        <div class="config-item">
+                            <label>策略类型:</label>
+                            <select name="strategy" required>
+                                <option value="buy_hold">买入持有</option>
+                                <option value="ma_cross">移动平均交叉</option>
+                                <option value="rsi_strategy">RSI策略</option>
+                                <option value="bollinger">布林带策略</option>
+                                <option value="macd_strategy">MACD策略</option>
+                            </select>
+                        </div>
+                        <div class="config-item">
+                            <label>回测周期:</label>
+                            <select name="period" required>
+                                <option value="6m">近6个月</option>
+                                <option value="1y" selected>近1年</option>
+                                <option value="2y">近2年</option>
+                                <option value="3y">近3年</option>
+                            </select>
+                        </div>
+                        <div class="config-item">
+                            <label>投资金额:</label>
+                            <input type="number" name="capital" value="50000" min="1000" step="1000" required>
+                        </div>
+                    </div>
+                    <div style="text-align: center; margin: 20px 0;">
+                        <button type="submit" class="btn primary">🎯 开始单股回测</button>
+                        <button type="reset" class="btn">🔄 重置配置</button>
+                    </div>
+                </form>
+            </div>
+            <div class="card">
+                <h3>📈 单股回测结果</h3>
+                <div id="single-results" class="results">点击"开始单股回测"查看结果...</div>
+            </div>
+        </div>
+        
+        <!-- 组合回测 -->
+        <div id="portfolio" class="tab-content">
+            <div class="card">
+                <h3>🔧 组合回测配置</h3>
+                <form id="portfolio-backtest-form">
+                    <div class="config-grid">
+                        <div class="config-item">
+                            <label>策略类型:</label>
+                            <select name="strategy" required>
+                                <option value="dual_ma">双移动平均线策略</option>
+                                <option value="rsi_macd">RSI+MACD策略</option>
+                                <option value="momentum">动量策略</option>
+                                <option value="mean_reversion">均值回归策略</option>
+                            </select>
+                        </div>
+                        <div class="config-item">
+                            <label>时间范围:</label>
+                            <select name="period" required>
+                                <option value="1y">近1年</option>
+                                <option value="2y">近2年</option>
+                                <option value="3y" selected>近3年</option>
+                                <option value="5y">近5年</option>
+                            </select>
+                        </div>
+                        <div class="config-item">
+                            <label>初始资金:</label>
+                            <input type="number" name="capital" value="100000" min="10000" step="10000" required>
+                        </div>
+                        <div class="config-item">
+                            <label>股票池:</label>
+                            <select name="stocks" required>
+                                <option value="tech5">科技五强 (AAPL,TSLA,NVDA,MSFT,GOOGL)</option>
+                                <option value="sp500">标普500前10</option>
+                                <option value="custom">自定义股票池</option>
+                            </select>
+                        </div>
+                    </div>
+                    <div style="text-align: center; margin: 20px 0;">
+                        <button type="submit" class="btn primary">🚀 开始组合回测</button>
+                        <button type="reset" class="btn">🔄 重置配置</button>
+                    </div>
+                </form>
+            </div>
+            <div class="card">
+                <h3>📊 组合回测结果</h3>
+                <div id="portfolio-results" class="results">点击"开始组合回测"查看结果...</div>
+            </div>
+        </div>
+    </div>
+
+    <script src="/static/js/main.js"></script>
+    <script src="/static/js/backtest.js"></script>
+</body>
+</html>

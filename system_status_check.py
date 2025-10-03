@@ -29,8 +29,8 @@ def check_component_status():
     
     status_report = {}
     
-    # 添加 core 目录到路径
-    core_path = os.path.join(os.path.dirname(__file__), 'core')
+    # 添加 src/core 目录到路径
+    core_path = os.path.join(os.path.dirname(__file__), 'src', 'core')
     if core_path not in sys.path:
         sys.path.append(core_path)
     
@@ -150,8 +150,8 @@ def test_integration():
     print("\n🔗 开始集成测试...")
     
     try:
-        # 添加 core 目录到路径
-        core_path = os.path.join(os.path.dirname(__file__), 'core')
+        # 添加 src/core 目录到路径
+        core_path = os.path.join(os.path.dirname(__file__), 'src', 'core')
         if core_path not in sys.path:
             sys.path.append(core_path)
         

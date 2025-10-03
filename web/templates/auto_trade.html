@@ -1,0 +1,97 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>⚡ 自动交易 - 量化交易系统</title>
+    <link rel="stylesheet" href="/static/css/main.css">
+</head>
+<body>
+    <div class="container">
+        <a href="/" class="back-btn">← 返回主页</a>
+        <h1>⚡ 自动交易系统</h1>
+        
+        <div class="alert warning">
+            <strong>⚠️ 重要提示:</strong> 当前为模拟交易模式，所有交易都是虚拟的，不会产生实际资金损失。
+        </div>
+        
+        <div class="card">
+            <h3>🎛️ 交易配置</h3>
+            <form id="auto-trade-config">
+                <div class="config-grid">
+                    <div class="config-item">
+                        <label>交易模式:</label>
+                        <select name="mode" required>
+                            <option value="paper">纸面交易 (推荐)</option>
+                            <option value="simulate">模拟交易</option>
+                            <option value="live" disabled>实盘交易 (暂未开放)</option>
+                        </select>
+                    </div>
+                    <div class="config-item">
+                        <label>股票池:</label>
+                        <select name="stocks" required>
+                            <option value="tech5">科技五强 (AAPL,TSLA,NVDA,MSFT,GOOGL)</option>
+                            <option value="sp500">标普500前10</option>
+                            <option value="custom">自定义股票池</option>
+                        </select>
+                    </div>
+                    <div class="config-item">
+                        <label>策略组合:</label>
+                        <select name="strategy" required>
+                            <option value="conservative">保守型 (低风险)</option>
+                            <option value="balanced">均衡型 (中等风险)</option>
+                            <option value="aggressive">积极型 (高风险)</option>
+                        </select>
+                    </div>
+                    <div class="config-item">
+                        <label>初始资金:</label>
+                        <input type="number" name="capital" value="100000" min="10000" step="10000" required>
+                    </div>
+                    <div class="config-item">
+                        <label>止损比例:</label>
+                        <input type="number" name="stopLoss" value="5" min="1" max="20" step="0.5" required>
+                        <small>%</small>
+                    </div>
+                    <div class="config-item">
+                        <label>止盈比例:</label>
+                        <input type="number" name="takeProfit" value="15" min="5" max="50" step="0.5" required>
+                        <small>%</small>
+                    </div>
+                </div>
+                
+                <div style="text-align: center; margin: 20px 0;">
+                    <button type="button" id="start-btn" class="btn primary">🚀 启动自动交易</button>
+                    <button type="button" id="stop-btn" class="btn danger" disabled>🛑 停止交易</button>
+                    <button type="reset" class="btn">🔄 重置配置</button>
+                </div>
+            </form>
+        </div>
+        
+        <div class="card">
+            <h3>📊 实时状态</h3>
+            <div id="trading-status" class="status-display">
+🎯 自动交易系统待命中...
+📋 配置: 纸面交易模式，科技五强股票池
+💰 初始资金: $100,000
+🛡️ 风险控制: 止损5%, 止盈15%
+⚡ 点击"启动自动交易"开始监控...</div>
+        </div>
+        
+        <div class="card">
+            <h3>📈 交易记录</h3>
+            <div id="trade-log" class="status-display">暂无交易记录，启动自动交易后显示...</div>
+        </div>
+        
+        <div class="alert info">
+            <strong>💡 使用提示:</strong> 
+            <br>• 首次使用建议选择"保守型"策略
+            <br>• 系统会根据技术指标自动执行买卖操作
+            <br>• 可随时停止交易并查看详细报告
+            <br>• 所有操作都有完整的日志记录
+        </div>
+    </div>
+
+    <script src="/static/js/main.js"></script>
+    <script src="/static/js/auto_trade.js"></script>
+</body>
+</html>

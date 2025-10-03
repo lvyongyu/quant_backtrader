@@ -85,7 +85,13 @@ def print_help():
     print("   python3 main.py advanced risk AAPL           # 高级风险分析")
     print("   python3 main.py advanced analytics AAPL      # 高级分析器")
     
+    print("\n🌐 7. Web界面 (现代化响应式界面):")
+    print("   python3 main.py web start                    # 启动Web界面")
+    print("   python3 main.py web start --port 8080        # 指定端口启动")
+    print("   python3 main.py web status                   # Web服务状态")
+    
     print("\n💡 快速开始:")
+    print("   python3 main.py web start                    # 启动Web界面")
     print("   python3 main.py select single AAPL           # 分析苹果股票")
     print("   python3 main.py watchlist add AAPL           # 添加到自选股")
     print("   python3 main.py strategy config balanced AAPL  # 使用平衡配置")
@@ -155,8 +161,8 @@ def handle_strategy_command(args):
         print("🔄 启动回测验证...")
         # 集成回测功能
         if args.strategy and args.symbol:
-            from core.backtest_manager import quick_backtest
-            from core.strategy_manager import create_strategy
+            from src.core.backtest_manager import quick_backtest
+            from src.core.strategy_manager import create_strategy
             
             try:
                 strategy = create_strategy(args.strategy)
@@ -181,13 +187,13 @@ def handle_trade_command(args):
         
         # 实时响应式流程：市场数据流 → 实时分析引擎 → 风险引擎 → 信号输出
         try:
-            from core.realtime_signal_integration import start_realtime_trading, stop_realtime_trading, get_trading_performance, get_recent_trading_signals
-            from core.paper_trader import PaperTrader
+            from src.core.realtime_signal_integration import start_realtime_trading, stop_realtime_trading, get_trading_performance, get_recent_trading_signals
+            from src.core.paper_trader import PaperTrader
             
             # 启动风险引擎集成
             import sys
             import os
-            sys.path.append(os.path.join(os.path.dirname(__file__), 'core'))
+            sys.path.append(os.path.join(os.path.dirname(__file__), 'src', 'core'))
             from risk_engine_integration import start_risk_engine, get_risk_integration
             
             print("⚡ 启动实时风险引擎...")
@@ -258,7 +264,7 @@ def handle_trade_command(args):
             # 启动ML预测集成
             print("🤖 启动ML信号预测系统...")
             try:
-                sys.path.append(os.path.join(os.path.dirname(__file__), 'core'))
+                sys.path.append(os.path.join(os.path.dirname(__file__), 'src', 'core'))
                 from ml_integration import start_ml_integration, get_ml_integration
                 
                 # 异步启动ML集成
@@ -352,8 +358,8 @@ def handle_trade_command(args):
         print("📊 交易系统状态检查...")
         try:
             from src.risk import RiskController, RiskLimits
-            from core.data_stream_integration_real import get_data_stream_manager
-            from core.realtime_signal_integration import get_integration_system, get_trading_performance
+            from src.core.data_stream_integration_real import get_data_stream_manager
+            from src.core.realtime_signal_integration import get_integration_system, get_trading_performance
             
             # 检查各系统状态
             manager = get_data_stream_manager()
@@ -383,7 +389,7 @@ def handle_trade_command(args):
             try:
                 import sys
                 import os
-                sys.path.append(os.path.join(os.path.dirname(__file__), 'core'))
+                sys.path.append(os.path.join(os.path.dirname(__file__), 'src', 'core'))
                 from ml_integration import get_ml_integration
                 
                 ml_integration = get_ml_integration()
@@ -410,7 +416,7 @@ def handle_trade_command(args):
             # 导入风险引擎集成
             import sys
             import os
-            sys.path.append(os.path.join(os.path.dirname(__file__), 'core'))
+            sys.path.append(os.path.join(os.path.dirname(__file__), 'src', 'core'))
             from risk_engine_integration import get_risk_integration, print_risk_status
             
             # 获取风险引擎状态
@@ -455,7 +461,7 @@ def handle_performance_command(args):
         # 导入性能监控模块
         import sys
         import os
-        sys.path.append(os.path.join(os.path.dirname(__file__), 'core'))
+        sys.path.append(os.path.join(os.path.dirname(__file__), 'src', 'core'))
         from performance_monitor import get_performance_monitor, start_performance_monitoring, stop_performance_monitoring, print_performance_dashboard
         
         if args.action == 'dashboard':
@@ -507,6 +513,42 @@ def handle_performance_command(args):
         import traceback
         traceback.print_exc()
 
+def handle_web_command(args):
+    """处理Web界面命令"""
+    if args.action == 'start':
+        print("🌐 启动Web服务器...")
+        print(f"📡 监听地址: http://{args.host}:{args.port}")
+        
+        # 启动新的API服务器
+        api_server_script = os.path.join(os.path.dirname(__file__), 'web', 'backend', 'api_server.py')
+        
+        if os.path.exists(api_server_script):
+            cmd = f"python3 {api_server_script} --host {args.host} --port {args.port}"
+            if getattr(args, 'no_browser', False):
+                cmd += " --no-browser"
+            print(f"🚀 执行命令: {cmd}")
+            os.system(cmd)
+        else:
+            print("❌ API服务器文件不存在，尝试启动旧版本...")
+            # 回退到旧版本
+            old_web_script = os.path.join(os.path.dirname(__file__), 'web_app.py')
+            if os.path.exists(old_web_script):
+                cmd = f"python3 {old_web_script}"
+                os.system(cmd)
+            else:
+                print("❌ 找不到Web服务器文件")
+    
+    elif args.action == 'status':
+        print("🌐 Web服务状态:")
+        print("🚧 状态检查功能开发中...")
+    
+    elif args.action == 'stop':
+        print("🛑 停止Web服务器...")
+        print("🚧 停止功能开发中...")
+    
+    else:
+        print("❌ 未知Web操作")
+
 def handle_advanced_command(args_list):
     """处理高级技术库命令"""
     if len(args_list) < 2:
@@ -522,7 +564,7 @@ def handle_advanced_command(args_list):
         print(f"🕵️ 异常检测分析: {symbol}")
         try:
             from src.advanced_analytics.anomaly_detection import AnomalyDetectionEngine
-            from core.data_manager import get_data
+            from src.core.data_manager import get_data
             
             # 获取数据
             data = get_data(symbol, period='6mo')
@@ -566,7 +608,7 @@ def handle_advanced_command(args_list):
         print(f"🛡️ 高级风险分析: {symbol}")
         try:
             from src.risk import RiskController
-            from core.data_manager import get_data
+            from src.core.data_manager import get_data
             
             data = get_data(symbol, period='1y')
             if data is None or data.empty:
@@ -634,6 +676,13 @@ def create_parser():
     advanced_parser.add_argument('function', choices=['anomaly', 'ml', 'risk', 'analytics'], help='高级功能')
     advanced_parser.add_argument('symbol', nargs='?', help='股票代码')
     
+    # 7. Web界面命令
+    web_parser = subparsers.add_parser('web', help='Web界面')
+    web_parser.add_argument('action', choices=['start', 'stop', 'status'], help='Web操作')
+    web_parser.add_argument('--port', type=int, default=8000, help='端口号 (默认8000)')
+    web_parser.add_argument('--host', default='localhost', help='主机地址 (默认localhost)')
+    web_parser.add_argument('--no-browser', action='store_true', help='不自动打开浏览器')
+    
     return parser
 
 def main():
@@ -662,6 +711,8 @@ def main():
             handle_performance_command(args)
         elif args.command == 'advanced':
             handle_advanced_command([args.function, args.symbol])
+        elif args.command == 'web':
+            handle_web_command(args)
         else:
             print_help()
         
