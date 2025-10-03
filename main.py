@@ -103,7 +103,7 @@ def handle_select_command(args):
     print("🔍 启动智能选股系统...")
     
     # 使用统一CLI处理选股
-    cli_script = os.path.join(os.path.dirname(__file__), 'core', 'simple_cli.py')
+    cli_script = os.path.join(os.path.dirname(__file__), 'src', 'core', 'simple_cli.py')
     
     if args.action == 'single':
         if not args.symbol:
@@ -131,7 +131,7 @@ def handle_watchlist_command(args):
     print("📋 启动自选股池管理...")
     
     # 使用统一CLI处理自选股
-    cli_script = os.path.join(os.path.dirname(__file__), 'core', 'simple_cli.py')
+    cli_script = os.path.join(os.path.dirname(__file__), 'src', 'core', 'simple_cli.py')
     
     if args.action == 'add' and args.symbol:
         cmd = f"python3 {cli_script} watchlist add {args.symbol}"
@@ -147,7 +147,7 @@ def handle_strategy_command(args):
     print("📊 启动策略分析系统...")
     
     # 使用统一CLI处理策略
-    cli_script = os.path.join(os.path.dirname(__file__), 'core', 'simple_cli.py')
+    cli_script = os.path.join(os.path.dirname(__file__), 'src', 'core', 'simple_cli.py')
     
     if args.action == 'list':
         cmd = f"python3 {cli_script} strategy list"

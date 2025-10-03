@@ -5,7 +5,7 @@
 ### ⚡ **1分钟选股**
 ```bash
 # 筛选S&P500前5只优质股票
-python3 main.py screen sp500 5
+python3 main.py select pool sp500 --limit 5
 
 # 查看自动加入的自选股
 python3 main.py watchlist show
@@ -66,9 +66,9 @@ python3 test_p1_2_core_validation.py
 ### **Step 1: 选股** 🔍
 ```bash
 # 从不同市场选择优质股票
-python3 main.py screen sp500 5      # 美股大盘
-python3 main.py screen nasdaq100 3  # 科技股
-python3 main.py screen chinese 2    # 中概股
+python3 main.py select pool sp500 --limit 5      # 美股大盘
+python3 main.py select pool nasdaq100 --limit 3  # 科技股
+python3 main.py select pool chinese --limit 2    # 中概股
 ```
 
 ### **Step 2: 分析** 📊
@@ -132,6 +132,6 @@ python3 main.py intraday monitor
 
 ---
 
-🎉 **开始你的量化交易之旅**: `python3 main.py screen sp500 5`
+🎉 **开始你的量化交易之旅**: `python3 main.py select pool sp500 --limit 5`
 
 *5分钟后，你就能看到系统为你筛选出的优质投资机会!* 🚀
